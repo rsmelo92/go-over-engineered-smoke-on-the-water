@@ -4,32 +4,82 @@ package main
 
 import (
 	"fmt"
-	"log"
+	"bufio"
 	"net/http"
-
-	"github.com/gorilla/mux"
 )
 
-func booksRoute(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	title := vars["title"]
-	page := vars["page"]
+func another(w http.ResponseWriter, r *http.Request)  {
+	fmt.Printf("another \n")
 
-	fmt.Fprintf(w, "You've requested the book: %s on page %s\n", title, page)
+	reader := bufio.NewReader(r.Body)
+	for {
+			line, err := reader.ReadBytes('\n')
+			if err != nil {
+				panic(err)
+			}
+			fmt.Printf("Got %s \n", string(line))
+	}
+
+	// // Create a new RTCPeerConnection
+	// peerConnection, err := webrtc.NewPeerConnection(config)
+	// if err != nil {
+	// 	panic(err)
+	// }
+
+	// if _, err = peerConnection.AddTransceiver(webrtc.RTPCodecTypeVideo); err != nil {
+	// 	panic(err)
+	// }
+
+	// peerConnection.OnTrack(func(track *webrtc.Track, receiver *webrtc.RTPReceiver) {
+
+	// 	fmt.Printf("Track has started, of type %d: %s \n", track.PayloadType(), track.Codec().Name)
+	// 	fileName := fmt.Sprintf("assets/bettyboop.mp4")
+
+	// 	fmt.Printf("Got Opus track, saving to disk as %s (48 kHz, 2 channels) \n", fileName)
+
+	// 	for {
+	// 		rtpPacket, err := track.ReadRTP()
+	// 		if err != nil {
+	// 			panic(err)
+	// 		}
+	// 		if err := oggFile.WriteRTP(rtpPacket); err != nil {
+	// 			panic(err)
+	// 		}
+	// 	}
+	// })
+
 }
 
 func main()  {
-	r := mux.NewRouter()
-	
-  fs := http.FileServer(http.Dir("./static"))
+	fs := http.FileServer(http.Dir("./static"))
   http.Handle("/", fs)
-	r.HandleFunc("/person/{title}/page/{page}", booksRoute)
+	http.HandleFunc("/another", another)
 
-	port := ":8080"
-	fmt.Printf("Running server on http://localhost%s\n", port)
-	
-	err := http.ListenAndServe(port, nil)
-  if err != nil {
-    log.Fatal(err)
-  }
+	fmt.Println("Server has started on http://localhost:8080")
+	panic(http.ListenAndServe(":8080", nil))
 }
+
+// func main()  {
+// 	const songsDir = "./assets/bettyboop.mp4"
+	
+// 	fs := http.FileServer(http.Dir("./static"))
+// 	sd := http.FileServer(http.Dir(songsDir))
+//   http.Handle("/", fs)
+// 	http.Handle("/videos", addHeaders(sd))
+
+// 	port := ":8080"
+// 	fmt.Printf("Running server on http://localhost%s\n", port)
+	
+// 	err := http.ListenAndServe(port, nil)
+//   if err != nil {
+//     log.Fatal(err)
+//   }
+// }
+
+// // addHeaders will act as middleware to give us CORS support
+// func addHeaders(h http.Handler) http.HandlerFunc {
+// 	return func(w http.ResponseWriter, r *http.Request) {
+// 		w.Header().Set("Access-Control-Allow-Origin", "*")
+// 		h.ServeHTTP(w, r)
+// 	}
+// }

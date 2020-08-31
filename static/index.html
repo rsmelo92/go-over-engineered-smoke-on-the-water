@@ -1,11 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>go lang web</title>
-</head>
-<body>
-  <h1>go lang web</h1>
-</body>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>go lang web video</title>
+    <style>
+      video {
+        max-width: 800px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1> Golang Video </h1>
+    <video />
+    <button onclick="window.startCamera()"> Test Camera </button>
+
+    <script>
+      console.log("Q");
+      const peerConnection = new RTCPeerConnection();
+      const constraints = {
+        audio: true,
+        video: {
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+          facingMode: "user"
+        }
+      }
+
+      navigator.mediaDevices.getUserMedia(constraints)
+        .then(stream => {
+          console.log("stream",stream);
+          var video = document.querySelector('video');
+          video.srcObject = stream;
+          video.onloadedmetadata = function(e) {
+            video.play();
+          };
+          peerConnection.addTrack(stream)
+          // peerConnection.createOffer().then(d => peerConnection.setLocalDescription(d))
+      }).catch(window.alert)
+   
+      // function startCamera() {
+      //   fetch('/create-voicemail', {
+      //       method: 'POST',
+      //       headers: {
+      //         'Content-Type': 'application/json'
+      //       },
+      //       body: JSON.stringify(pc.pendingLocalDescription)
+      //   })
+      //   .then(response => response.json())
+      //   .then(sdp => {
+      //     pc.setRemoteDescription(sdp).catch(window.alert)
+      //   })
+      // }
+    </script>
+  </body>
 </html>
