@@ -10,7 +10,7 @@ go run main.go
 ## Resources
 Notes codes
 
-<img src="./static/notes.jpeg" width="40%">
+<img src="./static/notes.jpeg" width="60%">
 
 ## References
 
