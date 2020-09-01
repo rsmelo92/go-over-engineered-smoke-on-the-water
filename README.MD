@@ -1,6 +1,12 @@
 # Over Engineered Smoke on the Water
 This is a project to study Go and music theory
 
+## How to run
+On root directory run:
+```
+go run main.go
+```
+
 ## Resources
 Notes codes
 
