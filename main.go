@@ -64,7 +64,8 @@ func trackGenerator()  {
 	midi.AddTrack(track)
 	
 	const delay = 500
-	// Create some midi events
+
+	// Play Smoke on the Water
 	addNote(79, delay*4, track)
 	addNote(82, delay*2, track)
 	addNote(84, delay*2, track)
