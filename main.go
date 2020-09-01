@@ -65,7 +65,7 @@ func trackGenerator()  {
 	
 	const delay = 500
 
-	// Play Smoke on the Water
+	// Build Smoke on the Water
 	addNote(79, delay*4, track)
 	addNote(82, delay*2, track)
 	addNote(84, delay*2, track)
