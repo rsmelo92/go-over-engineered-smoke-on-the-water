@@ -1,85 +1,112 @@
+// http://www.cs.uccs.edu/~cs525/midi/midi.html
+// http://www.music-software-development.com/midi-tutorial.html
+// https://www.pioneerdj.com/-/media/pioneerdj/software-info/controller/ddj-wego3/ddj-wego3_list_of_midi_message_e.pdf
 package main
 
-// TODO: Fetch from this api https://pipl.ir/v1/getPerson 
-
 import (
-	"fmt"
 	"bufio"
+	"log"
+	"os"
+	"fmt"
 	"net/http"
+
+	"github.com/algoGuy/EasyMIDI/smf"
+	"github.com/algoGuy/EasyMIDI/smfio"
 )
 
-func another(w http.ResponseWriter, r *http.Request)  {
-	fmt.Printf("another \n")
+const midiFile = "static/smoke_on_the_water.mid"
 
-	reader := bufio.NewReader(r.Body)
-	for {
-			line, err := reader.ReadBytes('\n')
-			if err != nil {
-				panic(err)
-			}
-			fmt.Printf("Got %s \n", string(line))
-	}
+func initMidi() *smf.MIDIFile {
+	// Create division
+	division, err := smf.NewDivision(960, smf.NOSMTPE)
+	checkErr(err)
 
-	// // Create a new RTCPeerConnection
-	// peerConnection, err := webrtc.NewPeerConnection(config)
-	// if err != nil {
-	// 	panic(err)
-	// }
-
-	// if _, err = peerConnection.AddTransceiver(webrtc.RTPCodecTypeVideo); err != nil {
-	// 	panic(err)
-	// }
-
-	// peerConnection.OnTrack(func(track *webrtc.Track, receiver *webrtc.RTPReceiver) {
-
-	// 	fmt.Printf("Track has started, of type %d: %s \n", track.PayloadType(), track.Codec().Name)
-	// 	fileName := fmt.Sprintf("assets/bettyboop.mp4")
-
-	// 	fmt.Printf("Got Opus track, saving to disk as %s (48 kHz, 2 channels) \n", fileName)
-
-	// 	for {
-	// 		rtpPacket, err := track.ReadRTP()
-	// 		if err != nil {
-	// 			panic(err)
-	// 		}
-	// 		if err := oggFile.WriteRTP(rtpPacket); err != nil {
-	// 			panic(err)
-	// 		}
-	// 	}
-	// })
-
+	// Create new midi struct
+	midi, err := smf.NewSMF(smf.Format0, *division)
+	checkErr(err)
+	return midi
 }
 
-func main()  {
+func writeMidi(midi *smf.MIDIFile)  {
+	// Save to new midi source file
+	outputMidi, err := os.Create(midiFile)
+	checkErr(err)
+	defer outputMidi.Close()
+
+	// Create buffering stream
+	writer := bufio.NewWriter(outputMidi)
+	smfio.Write(writer, midi)
+	writer.Flush()
+}
+
+func addNote(note uint8, delay uint32, track *smf.Track) {
+	const volume = 10
+	const velocity = 64
+	const status = smf.NoteOnStatus
+
+	notePartOne, err := smf.NewMIDIEvent(delay, status, volume, note, velocity)
+	checkErr(err)
+
+	err = track.AddEvent(notePartOne)
+	checkErr(err)
+}
+
+func endOfTrack(delay uint32, track *smf.Track) {
+	endOfTrack, err := smf.NewMetaEvent(delay, smf.MetaEndOfTrack, []byte{})
+	checkErr(err)
+	err = track.AddEvent(endOfTrack)
+	checkErr(err)
+}
+
+func trackGenerator()  {
+	// Create new midi struct
+	midi := initMidi()
+	
+	// Create track struct
+	track := &smf.Track{}
+	
+	// Add track to new midi struct
+	midi.AddTrack(track)
+	
+	const delay = 500
+	// Create some midi events
+	addNote(79, delay*4, track)
+	addNote(82, delay*2, track)
+	addNote(84, delay*2, track)
+
+	addNote(79, delay*3, track)
+	addNote(82, delay*2, track)
+	addNote(85, delay*2, track)
+	addNote(84, delay, track)
+
+	addNote(79, delay*4, track)
+	addNote(82, delay*2, track)
+	addNote(84, delay*2, track)
+
+	addNote(82, delay*3, track)
+	addNote(79, delay*2, track)
+	endOfTrack(delay*5, track)
+
+	writeMidi(midi)
+}
+
+
+func main() {
 	fs := http.FileServer(http.Dir("./static"))
-  http.Handle("/", fs)
-	http.HandleFunc("/another", another)
+	http.Handle("/", fs)
+	
+	trackGenerator()
+	http.HandleFunc("/smoke_on_the_water.mid", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./static/smoke_on_the_water.mid")
+	})
 
 	fmt.Println("Server has started on http://localhost:8080")
 	panic(http.ListenAndServe(":8080", nil))
+
 }
 
-// func main()  {
-// 	const songsDir = "./assets/bettyboop.mp4"
-	
-// 	fs := http.FileServer(http.Dir("./static"))
-// 	sd := http.FileServer(http.Dir(songsDir))
-//   http.Handle("/", fs)
-// 	http.Handle("/videos", addHeaders(sd))
-
-// 	port := ":8080"
-// 	fmt.Printf("Running server on http://localhost%s\n", port)
-	
-// 	err := http.ListenAndServe(port, nil)
-//   if err != nil {
-//     log.Fatal(err)
-//   }
-// }
-
-// // addHeaders will act as middleware to give us CORS support
-// func addHeaders(h http.Handler) http.HandlerFunc {
-// 	return func(w http.ResponseWriter, r *http.Request) {
-// 		w.Header().Set("Access-Control-Allow-Origin", "*")
-// 		h.ServeHTTP(w, r)
-// 	}
-// }
+func checkErr(err error) {
+	if err != nil {
+		log.Fatalln(err)
+	}
+}

@@ -7,52 +7,29 @@
     <style>
       video {
         max-width: 800px;
+        display: block;
       }
     </style>
   </head>
 
   <body>
-    <h1> Golang Video </h1>
-    <video />
-    <button onclick="window.startCamera()"> Test Camera </button>
+    <h1> Over Engineered Smoke on the Water </h1>
+    <audio id="player" controls src="smoke_on_the_water.mid">
+    </audio>
 
     <script>
-      console.log("Q");
-      const peerConnection = new RTCPeerConnection();
-      const constraints = {
-        audio: true,
-        video: {
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
-          facingMode: "user"
-        }
-      }
-
-      navigator.mediaDevices.getUserMedia(constraints)
-        .then(stream => {
-          console.log("stream",stream);
-          var video = document.querySelector('video');
-          video.srcObject = stream;
-          video.onloadedmetadata = function(e) {
-            video.play();
-          };
-          peerConnection.addTrack(stream)
-          // peerConnection.createOffer().then(d => peerConnection.setLocalDescription(d))
-      }).catch(window.alert)
-   
-      // function startCamera() {
-      //   fetch('/create-voicemail', {
-      //       method: 'POST',
-      //       headers: {
-      //         'Content-Type': 'application/json'
-      //       },
-      //       body: JSON.stringify(pc.pendingLocalDescription)
-      //   })
-      //   .then(response => response.json())
-      //   .then(sdp => {
-      //     pc.setRemoteDescription(sdp).catch(window.alert)
-      //   })
-      // }
-    </script>
+      const source = document.getElementById('player');
+      fetch("/smoke_on_the_water.mid", { method: 'post' })
+        .then((res) => res.blob())
+        .then(data => {
+          console.log(data);
+          const objectURL = URL.createObjectURL(data);
+          source.src = objectURL;
+          setTimeout(() => {
+            document.getElementById('player').play();
+          }, 1500)
+        })
+        .catch(console.error);
+    </script> 
   </body>
 </html>
