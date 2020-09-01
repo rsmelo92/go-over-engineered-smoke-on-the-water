@@ -9,7 +9,7 @@ import (
 	"github.com/algoGuy/EasyMIDI/smfio"
 )
 
-const midiFile = "static/smoke_on_the_water.mid"
+const midiFile = "smoke_on_the_water.mid"
 
 func initMidi() *smf.MIDIFile {
 	// Create division
