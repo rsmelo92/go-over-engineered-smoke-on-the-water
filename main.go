@@ -1,14 +1,9 @@
-// http://www.cs.uccs.edu/~cs525/midi/midi.html
-// http://www.music-software-development.com/midi-tutorial.html
-// https://www.pioneerdj.com/-/media/pioneerdj/software-info/controller/ddj-wego3/ddj-wego3_list_of_midi_message_e.pdf
 package main
 
 import (
 	"bufio"
 	"log"
 	"os"
-	"fmt"
-	"net/http"
 
 	"github.com/algoGuy/EasyMIDI/smf"
 	"github.com/algoGuy/EasyMIDI/smfio"
@@ -92,17 +87,7 @@ func trackGenerator()  {
 
 
 func main() {
-	fs := http.FileServer(http.Dir("./static"))
-	http.Handle("/", fs)
-	
 	trackGenerator()
-	http.HandleFunc("/smoke_on_the_water.mid", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "./static/smoke_on_the_water.mid")
-	})
-
-	fmt.Println("Server has started on http://localhost:8080")
-	panic(http.ListenAndServe(":8080", nil))
-
 }
 
 func checkErr(err error) {
