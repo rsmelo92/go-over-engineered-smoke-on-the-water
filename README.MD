@@ -6,6 +6,7 @@ On root directory run:
 ```
 go run main.go
 ```
+Then play `smoke_on_the_water.mid` file on root
 
 ## Resources
 Notes codes
